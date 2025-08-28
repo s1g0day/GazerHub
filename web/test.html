@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub 仓库监控器 - 测试页面</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #f6f8fa;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 2em;
+            border-radius: 8px;
+            border: 1px solid #d0d7de;
+        }
+        .status-item {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border: 1px solid #d0d7de;
+        }
+        .success { background: #d4edda; color: #155724; border-color: #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border-color: #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border-color: #bee5eb; }
+        .button {
+            padding: 10px 20px;
+            background: #0969da;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .button:hover { background: #0860ca; }
+        .button:disabled { background: #cccccc; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+    <div id="test-app">
+        <div class="test-container">
+            <h1>GitHub 仓库监控器 - 系统测试</h1>
+            
+            <div class="status-item info">
+                <strong>测试环境状态</strong><br>
+                Vue.js 版本: {{ vueVersion }}<br>
+                当前时间: {{ currentTime }}<br>
+                页面加载时间: {{ loadTime }}
+            </div>
+            
+            <div class="status-item" :class="{ success: apiStatus === 'connected', error: apiStatus === 'failed', info: apiStatus === 'testing' }">
+                <strong>后端API连接测试</strong><br>
+                状态: {{ apiStatusText }}<br>
+                <span v-if="apiError">错误: {{ apiError }}</span>
+            </div>
+            
+            <div class="status-item" :class="{ success: repositories.length > 0, info: repositories.length === 0 }">
+                <strong>仓库数据测试</strong><br>
+                当前仓库数量: {{ repositories.length }}<br>
+                <span v-if="repositories.length > 0">示例仓库: {{ repositories[0].name }}</span>
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <button class="button" @click="testAPI" :disabled="testing">
+                    {{ testing ? '测试中...' : '重新测试API' }}
+                </button>
+                <button class="button" @click="goToMainApp">
+                    进入主应用
+                </button>
+            </div>
+            
+            <div v-if="testLog.length > 0" style="margin-top: 20px;">
+                <h3>测试日志</h3>
+                <div style="background: #f8f9fa; padding: 1em; border-radius: 6px; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto;">
+                    <div v-for="log in testLog" :key="log.id" :style="{ color: log.type === 'error' ? '#dc3545' : log.type === 'success' ? '#28a745' : '#6c757d' }">
+                        [{{ log.time }}] {{ log.message }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp, ref, computed, onMounted } = Vue;
+        
+        createApp({
+            setup() {
+                const apiStatus = ref('testing');
+                const apiError = ref('');
+                const repositories = ref([]);
+                const testing = ref(false);
+                const testLog = ref([]);
+                const loadTime = ref(new Date().toLocaleString());
+                
+                const vueVersion = Vue.version;
+                const currentTime = ref(new Date().toLocaleString());
+                
+                const apiStatusText = computed(() => {
+                    switch (apiStatus.value) {
+                        case 'connected': return '✅ 连接成功';
+                        case 'failed': return '❌ 连接失败';
+                        case 'testing': return '🔄 正在测试...';
+                        default: return '未知状态';
+                    }
+                });
+                
+                const addLog = (message, type = 'info') => {
+                    testLog.value.push({
+                        id: Date.now(),
+                        time: new Date().toLocaleTimeString(),
+                        message,
+                        type
+                    });
+                };
+                
+                const testAPI = async () => {
+                    testing.value = true;
+                    apiStatus.value = 'testing';
+                    apiError.value = '';
+                    
+                    addLog('开始API连接测试...', 'info');
+                    
+                    try {
+                        addLog('测试基础连接...', 'info');
+                        const response = await fetch('/api/status');
+                        
+                        if (!response.ok) {
+                            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                        }
+                        
+                        const data = await response.json();
+                        repositories.value = data || [];
+                        
+                        apiStatus.value = 'connected';
+                        addLog(`✅ API连接成功，获取到 ${data.length} 个仓库`, 'success');
+                        
+                        // 测试其他API端点
+                        try {
+                            addLog('测试配置API...', 'info');
+                            const configResponse = await fetch('/api/config');
+                            if (configResponse.ok) {
+                                addLog('✅ 配置API正常', 'success');
+                            }
+                        } catch (e) {
+                            addLog('⚠️ 配置API可能不可用: ' + e.message, 'error');
+                        }
+                        
+                    } catch (error) {
+                        apiStatus.value = 'failed';
+                        apiError.value = error.message;
+                        addLog(`❌ API连接失败: ${error.message}`, 'error');
+                    } finally {
+                        testing.value = false;
+                    }
+                };
+                
+                const goToMainApp = () => {
+                    if (apiStatus.value === 'connected') {
+                        window.location.href = '/';
+                    } else {
+                        alert('请先确保API连接正常后再进入主应用');
+                    }
+                };
+                
+                onMounted(() => {
+                    addLog('测试页面已加载', 'info');
+                    testAPI();
+                    
+                    // 每秒更新时间
+                    setInterval(() => {
+                        currentTime.value = new Date().toLocaleString();
+                    }, 1000);
+                });
+                
+                return {
+                    apiStatus,
+                    apiStatusText,
+                    apiError,
+                    repositories,
+                    testing,
+                    testLog,
+                    vueVersion,
+                    currentTime,
+                    loadTime,
+                    testAPI,
+                    goToMainApp
+                };
+            }
+        }).mount('#test-app');
+    </script>
+</body>
+</html>

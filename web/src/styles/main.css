@@ -1,0 +1,338 @@
+/* GitHub仓库监控器 - 主样式文件 */
+
+/* 动画定义 */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  0% { opacity: 0; transform: translateX(-20px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* 通用类 */
+.fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
+
+.slide-in {
+  animation: slideIn 0.4s ease-out;
+}
+
+.glass-effect {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.floating {
+  animation: float 6s ease-in-out infinite;
+}
+
+.shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+.status-dot {
+  position: relative;
+}
+
+.status-dot::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  animation: pulse-ring 2s infinite;
+}
+
+/* 单个添加区域布局 */
+.single-add-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+
+.input-section {
+  flex: 1;
+}
+
+.button-section {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.repo-input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.add-button {
+  min-width: 120px;
+  flex-shrink: 0;
+}
+
+/* 搜索过滤区域布局 */
+.search-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+
+.search-filter-container {
+  display: flex;
+  gap: 1em;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.search-input-container {
+  position: relative;
+  flex: 1;
+  min-width: 280px;
+}
+
+.search-input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.sort-select-container {
+  flex-shrink: 0;
+  min-width: 200px;
+}
+
+.sort-select {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  /* 小屏幕下的布局优化 */
+  .repo-management-area {
+    padding: 1.5em !important;
+  }
+  
+  .top-buttons {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 1em !important;
+  }
+  
+  .button-group {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 0.5em !important;
+  }
+  
+  .button-group button {
+    flex: 1 !important;
+    min-width: auto !important;
+    padding: 10px 12px !important;
+    font-size: 13px !important;
+  }
+  
+  .search-filters {
+    flex-direction: column !important;
+    gap: 1em !important;
+  }
+  
+  .add-repo-area {
+    padding: 1.25em !important;
+  }
+  
+  .mode-switch {
+    justify-content: center !important;
+  }
+  
+  .single-add-container {
+    gap: 1.25em;
+  }
+  
+  .button-section {
+    justify-content: center;
+  }
+  
+  .add-button {
+    width: 100%;
+    min-width: unset;
+  }
+  
+  .search-filter-container {
+    flex-direction: column;
+    gap: 1em;
+    align-items: stretch;
+  }
+  
+  .search-input-container {
+    min-width: unset;
+    width: 100%;
+  }
+  
+  .sort-select-container {
+    min-width: unset;
+    width: 100%;
+  }
+  
+  .batch-add-bottom {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.75em !important;
+  }
+  
+  .batch-add-bottom div {
+    text-align: center !important;
+  }
+}
+
+/* 批量添加模式响应式优化 */
+@media (max-width: 640px) {
+  .batch-add-bottom {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.75em !important;
+  }
+  
+  .batch-add-bottom > div:first-child {
+    text-align: center;
+    margin-bottom: 0.5em;
+  }
+  
+  .batch-add-bottom button {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+}
+
+/* 顶部按钮组响应式优化 */
+@media (max-width: 600px) {
+  .button-group {
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+  
+  .button-group button {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+  
+  .top-buttons {
+    flex-direction: column !important;
+    gap: 1em !important;
+  }
+  
+  .top-buttons > button {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+}
+
+/* 响应式设计 - 手机设备 */
+@media (max-width: 480px) {
+  .single-add-container {
+    gap: 1.5em;
+  }
+  
+  .input-section label {
+    font-size: 13px !important;
+    margin-bottom: 0.75em !important;
+  }
+  
+  .repo-input {
+    padding: 14px 16px 14px 44px !important;
+    font-size: 16px !important; /* 防止iOS自动缩放 */
+  }
+  
+  .add-button {
+    padding: 14px 20px !important;
+    font-size: 15px !important;
+  }
+  
+  .search-input {
+    padding: 14px 16px 14px 44px !important;
+    font-size: 16px !important; /* 防止iOS自动缩放 */
+  }
+  
+  .sort-select {
+    padding: 14px 16px !important;
+    font-size: 16px !important; /* 防止iOS自动缩放 */
+  }
+}
+
+/* 超小屏幕优化 */
+@media (max-width: 360px) {
+  .repo-input,
+  .search-input {
+    padding: 12px 14px 12px 40px !important;
+  }
+  
+  .add-button {
+    padding: 12px 16px !important;
+    font-size: 14px !important;
+  }
+  
+  .sort-select {
+    padding: 12px 14px !important;
+  }
+}
